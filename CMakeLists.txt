@@ -63,6 +63,7 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC" AND WIN32)
     "/W4" "/WX" "/permissive"
     "/wd4121"  # -warn: alignment of member was sensitive to padding
     "/wd4127"  # -warn: conditional expression is constant
+    "/wd4702"  # -warn: fuck msvc
   )
 
   set (LEASI_LINK_OPTIONS
@@ -212,10 +213,11 @@ endfunction ()
 
 add_subdirectory ("External")
 add_subdirectory ("Common")
+add_subdirectory ("ConvoSniffer")
 add_subdirectory ("GPUCrusher")
 add_subdirectory ("TextureOverride")
 
-set_property (DIRECTORY ${CMAKE_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT "TextureOverride-LE3")
+# set_property (DIRECTORY ${CMAKE_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT "TextureOverride-LE3")
 
 set (REPO_SOURCES
   .gitignore

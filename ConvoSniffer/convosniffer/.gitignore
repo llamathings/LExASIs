@@ -1,0 +1,8 @@
+.idea/
+.vscode/
+.vs/
+
+[Ll]ocal/
+[Tt]arget/
+
+Cargo.lock
