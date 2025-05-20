@@ -111,6 +111,32 @@ namespace ConvoSniffer
         LEASI_INFO("UObject hooks initialized");
 
 
+        // UGameEngine hooks.
+        // ----------------------------------------
+
+        {
+            auto const UGameEngine_Exec_target = Init.ResolveTyped<t_UGameEngine_Exec>(CONVO_SNIFFER_EXEC_PHOOK);
+            CHECK_RESOLVED(UGameEngine_Exec_target);
+            UGameEngine_Exec_orig = (t_UGameEngine_Exec*)Init.InstallHook("UGameEngine::Exec", UGameEngine_Exec_target, UGameEngine_Exec_hook);
+            CHECK_RESOLVED(UGameEngine_Exec_orig);
+        }
+
+        LEASI_INFO("UGameEngine hooks initialized");
+
+
+        // UGameViewportClient hooks.
+        // ----------------------------------------
+
+        {
+            auto const UGameViewportClient_InputKey_target = Init.ResolveTyped<t_UGameViewportClient_InputKey>(CONVO_SNIFFER_INPUTKEY_PAT);
+            CHECK_RESOLVED(UGameViewportClient_InputKey_target);
+            UGameViewportClient_InputKey_orig = (t_UGameViewportClient_InputKey*)Init.InstallHook("UGameViewportClient::InputKey", UGameViewportClient_InputKey_target, UGameViewportClient_InputKey_hook);
+            CHECK_RESOLVED(UGameViewportClient_InputKey_orig);
+        }
+
+        LEASI_INFO("UGameViewportClient hooks initialized");
+
+
         // UBioConversation hooks.
         // ----------------------------------------
 

@@ -1,6 +1,7 @@
 #include "Common/Objects.hpp"
 #include "ConvoSniffer/Client.hpp"
 #include "ConvoSniffer/Config.hpp"
+#include "ConvoSniffer/Client.hpp"
 #include "ConvoSniffer/Hooks.hpp"
 #include "ConvoSniffer/Profile.hpp"
 
@@ -16,11 +17,11 @@ namespace ConvoSniffer
         LEASI_UNUSED_4(Context, Function, Parms, Result);
         UObject_ProcessEvent_orig(Context, Function, Parms, Result);
 
-        if (Function == nullptr)
-        {
-            LEASI_WARN(L"ProcessEvent: null function");
-            return;
-        }
+        //if (UGameViewportClient* const Viewport = Context->Cast<UGameViewportClient>();
+        //    Viewport != nullptr && Function->GetName().Equals(L"Init"))
+        //{
+        //    // ...
+        //}
 
 #if defined(CNVSNF_LOG_MANAGED_FUNCS) && CNVSNF_LOG_MANAGED_FUNCS
         {
@@ -31,28 +32,31 @@ namespace ConvoSniffer
 #endif
 
 #if defined(CNVSNF_PROFILE_CONVO) && CNVSNF_PROFILE_CONVO
-        do {
-            ABioHUD* const BioHUD = Context->Cast<ABioHUD>();
-            if (BioHUD != nullptr && Function->GetName().Equals(L"PostRender"))
-            {
-                UEngine* const Engine = Common::FindFirstObject<UEngine, true>();
-                if (Engine == nullptr) break;
-
-                AWorldInfo* const WorldInfo = Engine->GetCurrentWorldInfo();
-                if (WorldInfo == nullptr) break;
-
-                ABioWorldInfo* const BioWorldInfo = WorldInfo->Cast<ABioWorldInfo>();
-                if (BioWorldInfo == nullptr) break;
-
+        if (gb_renderProfile)
+        {
+            do {
+                ABioHUD* const BioHUD = Context->Cast<ABioHUD>();
+                if (BioHUD != nullptr && Function->GetName().Equals(L"PostRender"))
                 {
-                    UCanvas* const Canvas = BioHUD->Canvas;
-                    UBioConversation* const Conversation = BioWorldInfo->m_oCurrentConversation;
+                    UEngine* const Engine = Common::FindFirstObject<UEngine, true>();
+                    if (Engine == nullptr) break;
 
-                    if (Canvas != nullptr && Conversation != nullptr)
-                        ProfileConversation(Canvas, Conversation);
+                    AWorldInfo* const WorldInfo = Engine->GetCurrentWorldInfo();
+                    if (WorldInfo == nullptr) break;
+
+                    ABioWorldInfo* const BioWorldInfo = WorldInfo->Cast<ABioWorldInfo>();
+                    if (BioWorldInfo == nullptr) break;
+
+                    {
+                        UCanvas* const Canvas = BioHUD->Canvas;
+                        UBioConversation* const Conversation = BioWorldInfo->m_oCurrentConversation;
+
+                        if (Canvas != nullptr && Conversation != nullptr)
+                            ProfileConversation(Canvas, Conversation);
+                    }
                 }
-            }
-        } while (false);
+            } while (false);
+        }
 #endif
     }
 
@@ -123,6 +127,99 @@ namespace ConvoSniffer
     }
 
 
+    // ! UGameEngine hooks.
+    // ========================================
+
+    t_UGameEngine_Exec* UGameEngine_Exec_orig = nullptr;
+    DWORD UGameEngine_Exec_hook(UGameEngine* const Context, WCHAR const* const Command, void* const Archive)
+    {
+        static bool sb_commandsLogged = false;
+        if (!std::exchange(sb_commandsLogged, true))
+        {
+            LEASI_INFO(L"Available extra commands:");
+            LEASI_INFO(L" - cs.profile - toggles profiler rendering (in convos)");
+            LEASI_INFO(L" - cs.hud - toggles scaleform rendering (in convos)");
+        }
+
+        if (Command != nullptr)
+        {
+            FString const Cmd{ Command };
+            if (Cmd.StartsWith(L"cs.", true))
+            {
+                if (Cmd.Equals(L"cs.profile", true))
+                {
+                    LEASI_INFO(L"Toggle profiler rendering.");
+                    gb_renderProfile = !gb_renderProfile;
+                }
+                else if (Cmd.Equals(L"cs.hud", true))
+                {
+                    LEASI_INFO(L"Toggle user interface.");
+                    gb_renderScaleform = !gb_renderScaleform;
+                }
+            }
+        }
+
+        return UGameEngine_Exec_orig(Context, Command, Archive);
+    }
+
+
+    // ! UGameViewportClient hooks.
+    // ========================================
+
+    t_UGameViewportClient_InputKey* UGameViewportClient_InputKey_orig = nullptr;
+    DWORD UGameViewportClient_InputKey_hook
+    (
+        UGameViewportClient* const      Context,
+        void* const                     Viewport,
+        DWORD const                     Unknown0,
+        SFXName const                   Key,
+        int const                       EventType,
+        DWORD const                     Unknown1,
+        DWORD const                     Unknown2
+    )
+    {
+        if (gp_snifferClient && gp_snifferClient->InConversation())
+        {
+            if (EventType == 1)  // only interested in "released" key events
+            {
+                FString const   KeyStr = Key.ToString();
+                bool            bKeyHandled = false;
+
+                LEASI_DEBUG(L"UGameViewportClient::InputKey => {} (released)", *KeyStr);
+
+                if (false) {}
+                else if (KeyStr.Equals(L"Zero")) bKeyHandled = gp_snifferClient->QueueReplyMapped(0);
+                else if (KeyStr.Equals(L"One")) bKeyHandled = gp_snifferClient->QueueReplyMapped(1);
+                else if (KeyStr.Equals(L"Two")) bKeyHandled = gp_snifferClient->QueueReplyMapped(2);
+                else if (KeyStr.Equals(L"Three")) bKeyHandled = gp_snifferClient->QueueReplyMapped(3);
+                else if (KeyStr.Equals(L"Four")) bKeyHandled = gp_snifferClient->QueueReplyMapped(4);
+                else if (KeyStr.Equals(L"Five")) bKeyHandled = gp_snifferClient->QueueReplyMapped(5);
+                else if (KeyStr.Equals(L"Six")) bKeyHandled = gp_snifferClient->QueueReplyMapped(6);
+                else if (KeyStr.Equals(L"Seven")) bKeyHandled = gp_snifferClient->QueueReplyMapped(7);
+                else if (KeyStr.Equals(L"Eight")) bKeyHandled = gp_snifferClient->QueueReplyMapped(8);
+                else if (KeyStr.Equals(L"Nine")) bKeyHandled = gp_snifferClient->QueueReplyMapped(9);
+                else if (KeyStr.Equals(L"A")) bKeyHandled = gp_snifferClient->QueueReplyMapped(10);
+                else if (KeyStr.Equals(L"B")) bKeyHandled = gp_snifferClient->QueueReplyMapped(11);
+                else if (KeyStr.Equals(L"C")) bKeyHandled = gp_snifferClient->QueueReplyMapped(12);
+                else if (KeyStr.Equals(L"D")) bKeyHandled = gp_snifferClient->QueueReplyMapped(13);
+                else if (KeyStr.Equals(L"E")) bKeyHandled = gp_snifferClient->QueueReplyMapped(14);
+                else if (KeyStr.Equals(L"F")) bKeyHandled = gp_snifferClient->QueueReplyMapped(15);
+                
+                else if (!gb_renderScaleform && KeyStr.Equals(L"SpaceBar"))
+                {
+                    // Special case: replace the skip-node binding disabled when GFx is hidden.
+                    gp_snifferClient->GetActiveConversation()->SkipNode();
+                }
+
+                LEASI_UNUSED(bKeyHandled);
+                // Allow the engine to handle 0-9A-F keys even if we're using them...
+            }
+        }
+
+        return UGameViewportClient_InputKey_orig(Context, Viewport, Unknown0, Key, EventType, Unknown1, Unknown2);
+    }
+
+
     // ! UBioConversation hooks.
     // ========================================
 
@@ -181,7 +278,7 @@ namespace ConvoSniffer
 
         UBOOL const Result = UBioConversation_QueueReply_orig(Context, Reply);
 
-#if defined(CNVSNF_LOG_NATIVE_FUNCS) && CNVSNF_LOG_NATIVE_FUNCS || true
+#if defined(CNVSNF_LOG_NATIVE_FUNCS) && CNVSNF_LOG_NATIVE_FUNCS
 
         LEASI_INFO(L"QueueReply: Reply = {} (=> {})", Reply, Context->m_lstCurrentReplyIndices(Reply));
         LEASI_INFO(L"  paraphrase = {}", *Context->GetReplyParaphraseText(Reply));

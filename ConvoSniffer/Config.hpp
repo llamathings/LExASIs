@@ -3,12 +3,18 @@
 
 /// @def    CNVSNF_LOG_MANAGED_FUNCS
 /// @brief  Toggles logging of BioConversation calls in ProcessEvent / ProcessInternal / CallFunction hooks.
-#define CNVSNF_LOG_MANAGED_FUNCS 0
+#ifndef CNVSNF_LOG_MANAGED_FUNCS
+    #define CNVSNF_LOG_MANAGED_FUNCS 0
+#endif
 
 /// @def    CNVSNF_LOG_NATIVE_FUNCS
 /// @brief  Toggles logging of BioConversation calls in native hooks.
-#define CNVSNF_LOG_NATIVE_FUNCS 0
+#ifndef CNVSNF_LOG_NATIVE_FUNCS
+    #define CNVSNF_LOG_NATIVE_FUNCS 0
+#endif
 
 /// @def    CNVSNF_PROFILE_CONVO
 /// @brief  Toggles debug profiler of the current conversation instance.
-#define CNVSNF_PROFILE_CONVO 1
+#ifndef CNVSNF_PROFILE_CONVO
+    #define CNVSNF_PROFILE_CONVO 1
+#endif

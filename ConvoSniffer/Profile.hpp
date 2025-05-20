@@ -31,6 +31,7 @@ namespace ConvoSniffer
         }
     }
 
+    extern bool gb_renderProfile;
 
     /// Renders profiling HUD for the given @c Conversation onto the given @c Canvas instance.
     void ProfileConversation(UCanvas* Canvas, UBioConversation* Conversation);

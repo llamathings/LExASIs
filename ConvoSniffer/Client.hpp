@@ -12,7 +12,9 @@
 namespace ConvoSniffer
 {
     class SnifferClient;
-    extern SnifferClient* gp_snifferClient;
+
+    extern SnifferClient*       gp_snifferClient;
+    extern bool                 gb_renderScaleform;
 
     class HttpClient final : public NonCopyable
     {
@@ -61,6 +63,11 @@ namespace ConvoSniffer
 
         SnifferClient(char const* InHost, int InPort);
         ~SnifferClient() noexcept = default;
+
+        bool InConversation() const noexcept;
+        UBioConversation* GetActiveConversation() const noexcept;
+
+        bool QueueReplyMapped(int Index);
 
         void OnStartConversation(UBioConversation* InConversation);
         void OnEndConversation(UBioConversation* InConversation);

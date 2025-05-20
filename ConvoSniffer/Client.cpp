@@ -3,6 +3,7 @@
 
 #include <simdutf.h>
 
+#include "Common/Objects.hpp"
 #include "ConvoSniffer/Client.hpp"
 #include "ConvoSniffer/Profile.hpp"
 
@@ -10,6 +11,7 @@
 namespace ConvoSniffer
 {
     SnifferClient* gp_snifferClient = nullptr;
+    bool gb_renderScaleform = false;
 
 
     // ! HttpClient implementation.
@@ -39,17 +41,20 @@ namespace ConvoSniffer
 
                     if (!RequestQueue.empty())
                     {
-                        Request const& HttpRequest = RequestQueue.front();
+                        Request const HttpRequest = RequestQueue.front();
+                        RequestQueue.pop_front();
+                        QueueLock.unlock();
+
                         LEASI_INFO(L"request: method = {}, path = {}", HttpRequest.Method, *HttpRequest.Path);
 
                         Response HttpResponse{};
                         if (SendHttp(HttpRequest, &HttpResponse))
                             LEASI_INFO(L"response: status = {}, text = {}", HttpResponse.Status, *HttpResponse.Body);
-
-                        RequestQueue.pop_front();
                     }
-
-                    RequestCondition.wait(QueueLock);
+                    else
+                    {
+                        RequestCondition.wait(QueueLock);
+                    }
                 }
             });
     }
@@ -205,7 +210,31 @@ namespace ConvoSniffer
         , CheckUpdate{ nullptr }
     {
         // Let's hard-code the keybinds for now...
-        Http.QueueRequest(L"PUT", L"/keybinds", L"1;2;3;4;5;6;7;8;9;10;A;B;C;D;E;F");
+        Http.QueueRequest(L"PUT", L"/keybinds", L"0;1;2;3;4;5;6;7;8;9;A;B;C;D;E;F");
+    }
+
+    bool SnifferClient::InConversation() const noexcept
+    {
+        return Conversation != nullptr;
+    }
+
+    UBioConversation* SnifferClient::GetActiveConversation() const noexcept
+    {
+        return Conversation;
+    }
+
+    bool SnifferClient::QueueReplyMapped(int const Index)
+    {
+        if (Index >= 0 && Index < 16 && Conversation != nullptr)
+        {
+            for (UINT nReply = 0; nReply < Conversation->m_lstCurrentReplyIndices.Count(); nReply++)
+            {
+                if (Conversation->m_lstCurrentReplyIndices(nReply) == Index)
+                    return Conversation->QueueReply((int)nReply);
+            }
+        }
+
+        return false;
     }
 
     void SnifferClient::OnStartConversation(UBioConversation* const InConversation)
@@ -217,6 +246,12 @@ namespace ConvoSniffer
             Http.QueueRequest(L"POST", L"/conversation", FString());
             CheckUpdate.nCurrentEntry = -1;
             bInitialReplies = false;
+
+            if (!gb_renderScaleform)
+            {
+                Common::FindFirstObject<UConsole>()
+                    ->ConsoleCommand(L"show scaleform");
+            }
         }
         else
         {
@@ -232,6 +267,12 @@ namespace ConvoSniffer
             Http.QueueRequest(L"DELETE", L"/conversation", FString());
             CheckUpdate = nullptr;
             Conversation = nullptr;
+
+            if (!gb_renderScaleform)
+            {
+                Common::FindFirstObject<UConsole>()
+                    ->ConsoleCommand(L"show scaleform");
+            }
         }
         else if (Conversation != nullptr)
         {

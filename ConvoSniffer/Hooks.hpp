@@ -5,6 +5,8 @@
 #include "Common/Base.hpp"
 
 
+#define CONVO_SNIFFER_EXEC_PHOOK ::LESDK::Address::FromPostHook(/* 40 55 56 57 41 */ "54 41 55 41 56 41 57 48 8D AC 24 ?? ?? ?? ?? 48 81 EC 60 0A 00 00 48 C7 45 ?? ?? ?? ?? ?? 48 89 9C 24 ?? ?? ?? ??")
+#define CONVO_SNIFFER_INPUTKEY_PAT ::LESDK::Address::FromPattern("48 89 5C 24 ?? 55 57 41 54 41 55 41 57 48 81 EC 80 00 00 00")
 #define CONVO_SNIFFER_STARTCONVERSATION_PAT ::LESDK::Address::FromPattern("40 55 56 57 41 54 41 55 41 56 41 57 48 8B EC 48 83 EC 70 48 C7 45 ?? FE FF FF FF 48 89 9C 24 ?? ?? ?? ?? 0F 29 74 24 ?? 49 8B F8")
 #define CONVO_SNIFFER_ENDCONVERSATION_PAT ::LESDK::Address::FromPattern("40 56 48 83 EC 40 83 89 ?? ?? ?? ?? 04")
 #define CONVO_SNIFFER_SELECTREPLY_PAT ::LESDK::Address::FromPattern("48 8B C4 56 57 41 54 41 56 41 57 48 83 EC 60 48 C7 40 ?? FE FF FF FF 48 89 58 ?? 48 89 68 ?? 48 63 DA")
@@ -27,6 +29,22 @@ namespace ConvoSniffer
     using t_UObject_CallFunction = void(UObject* Context, FFrame* Stack, void* Result, UFunction* Function);
     extern t_UObject_CallFunction* UObject_CallFunction_orig;
     void UObject_CallFunction_hook(UObject* Context, FFrame* Stack, void* Result, UFunction* Function);
+
+
+    // ! UGameEngine hooks.
+    // ========================================
+
+    using t_UGameEngine_Exec = DWORD(UGameEngine* Context, WCHAR const* Command, void* Archive);
+    extern t_UGameEngine_Exec* UGameEngine_Exec_orig;
+    DWORD UGameEngine_Exec_hook(UGameEngine* Context, WCHAR const* Command, void* Archive);
+
+
+    // ! UGameViewportClient hooks.
+    // ========================================
+
+    using t_UGameViewportClient_InputKey = DWORD(UGameViewportClient* Context, void* Viewport, DWORD Unknown0, SFXName Key, int EventType, DWORD Unknown1, DWORD Unknown2);
+    extern t_UGameViewportClient_InputKey* UGameViewportClient_InputKey_orig;
+    DWORD UGameViewportClient_InputKey_hook(UGameViewportClient* Context, void* Viewport, DWORD Unknown0, SFXName Key, int EventType, DWORD Unknown1, DWORD Unknown2);
 
 
     // ! UBioConversation hooks.

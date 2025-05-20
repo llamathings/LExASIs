@@ -2,6 +2,8 @@
 
 namespace ConvoSniffer
 {
+    bool gb_renderProfile = false;
+
     void ProfileConversation(UCanvas* const Canvas, UBioConversation* const Conversation)
     {
         int const Width = Canvas->SizeX;
