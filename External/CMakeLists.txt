@@ -13,6 +13,18 @@ set_target_properties (LESDK-LE2 PROPERTIES FOLDER "External")
 set_target_properties (LESDK-LE3 PROPERTIES FOLDER "External")
 
 
+# ! Submodule: simdutf.
+# ========================================
+
+set (SIMDUTF_TESTS OFF)
+set (SIMDUTF_TOOLS OFF)
+set (SIMDUTF_ICONV OFF)
+
+add_subdirectory ("simdutf")
+set_target_properties (simdutf PROPERTIES FOLDER "External")
+set_target_properties (simdutf-singleheader-files PROPERTIES FOLDER "External")
+
+
 # ! Submodule: spdlog.
 # ========================================
 

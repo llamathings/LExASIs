@@ -1,0 +1,6 @@
+-- 1. Persist ASI logs to disk. --
+-- 2. Add server-side logging (to console + to disk). --
+-- 3. Fix missing keybinds on second client. --
+-- 4. Test how it works with gated replies. (spoiler: not very well) --
+-- 5. Try to do some highlighting for paragon / renegade replies. --
+-- 6. Do not handle ambient conversations. --

@@ -4,3 +4,6 @@
 [submodule "External/spdlog"]
 	path = External/spdlog
 	url = https://github.com/gabime/spdlog
+[submodule "External/simdutf"]
+	path = External/simdutf
+	url = https://github.com/simdutf/simdutf.git
