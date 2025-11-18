@@ -62,7 +62,7 @@ namespace TextureOverride
     // ! Texture loading.
     // ========================================
 
-    extern std::vector<std::shared_ptr<ManifestLoader>> g_loadedManifests;
+    extern std::vector<ManifestLoaderPointer> g_loadedManifests;
     static constexpr std::wstring_view k_searchFoldersRoot = L"../../BioGame/DLC/";
 
     void LoadDlcManifests();

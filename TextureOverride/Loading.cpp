@@ -1,22 +1,25 @@
 #include <filesystem>
 #include "TextureOverride/Loading.hpp"
 #include "TextureOverride/Manifest.hpp"
+#include "TextureOverride/Mount.hpp"
 
 namespace fs = std::filesystem;
 
 
 namespace TextureOverride
 {
-    std::vector<std::shared_ptr<ManifestLoader>> g_loadedManifests{};
+    std::vector<ManifestLoaderPointer> g_loadedManifests{};
 
     void LoadDlcManifests()
     {
         fs::path const DlcFolder{ k_searchFoldersRoot };
         LEASI_INFO(L"looking for dlc roots in {}", DlcFolder.c_str());
 
-        for (auto const& DlcRoot : fs::directory_iterator{ DlcFolder })
+        FString MountLoadError{};
+
+        for (fs::directory_entry const& DlcRoot : fs::directory_iterator{ DlcFolder })
         {
-            auto const& DlcPath = DlcRoot.path();
+            fs::path const& DlcPath = DlcRoot.path();
             std::wstring const DlcName{ DlcPath.filename().c_str() };
 
             if (!DlcRoot.is_directory() || !DlcName.starts_with(L"DLC_MOD_"))
@@ -25,8 +28,20 @@ namespace TextureOverride
                 continue;
             }
 
-            auto const ManifestPath = DlcPath / "CombinedTextureOverrides.btp";
-            LEASI_TRACE(L"looking for manifest {}", ManifestPath.c_str());
+            MountLoadError.Clear();
+            int const MountPriority = TryReadMountPriority(DlcPath, SDK_TARGET, &MountLoadError);
+
+            if (MountPriority < 0) [[unlikely]]
+            {
+                LEASI_ERROR(L"failed to read mount priority for '{}': {}",
+                    DlcName, *MountLoadError);
+                continue;
+            }
+
+            LEASI_DEBUG(L"mount priority for '{}' is {}", DlcName, MountPriority);
+
+            fs::path const ManifestPath = DlcPath / "CombinedTextureOverrides.btp";
+            LEASI_DEBUG(L"looking for manifest {}", ManifestPath.c_str());
 
             if (!fs::exists(ManifestPath))
                 continue;
@@ -34,7 +49,7 @@ namespace TextureOverride
             FString LoadError{};
             LEASI_DEBUG(L"loading manifest {}", ManifestPath.c_str());
 
-            auto Manifest = std::make_shared<ManifestLoader>();
+            ManifestLoaderPointer Manifest = std::make_shared<ManifestLoader>();
             if (!Manifest->Load(ManifestPath.wstring(), LoadError))
             {
                 LEASI_ERROR(L"failed to load manifest {}", ManifestPath.c_str());
@@ -42,13 +57,17 @@ namespace TextureOverride
                 continue;
             }
 
+            Manifest->SetMountPriority(MountPriority);
             g_loadedManifests.push_back(std::move(Manifest));
         }
+
+        // Sort manifests into descending mount priority order.
+        std::sort(g_loadedManifests.begin(), g_loadedManifests.end(), ManifestLoader::Compare);
     }
 
     FString const& GetTextureFullName(UTexture2D* const InObject)
     {
-        thread_local FString OutString{};
+        static FString OutString{};
         OutString.Clear();
 
         if (InObject->Class != nullptr)
