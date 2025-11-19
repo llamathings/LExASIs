@@ -165,5 +165,14 @@ namespace TextureOverride
                 Mips.Add(NextMip);
             }
         }
+
+        // Update InternalFormatLODBias to allow higher than LOD level mips to show without
+        // package edits.
+		InTexture->InternalFormatLODBias = Entry.InternalFormatLODBias;
+    
+        // Update NeverStream based on incoming texture entry.
+        // Validation of this will come from our editor tools, don't make it our
+        // job to handle it.
+        InTexture->NeverStream = Entry.NeverStream;
     }
 }

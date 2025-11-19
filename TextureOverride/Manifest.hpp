@@ -155,6 +155,8 @@ namespace TextureOverride
         std::int32_t    MipCount;                       // Number of mip records in @ref Mips, no more than @ref k_maxMipCount.
         CMipEntry       Mips[k_maxMipCount];            // Mip records, their count and meta must match the original mips.
         EPixelFormat    Format;                         // Pixel format for all mips, must match the LE definition.
+        int             InternalFormatLODBias;          // The value of the property from the original replacement texture package. Used to allow higher mip levels than the LOD level in config.
+		int             NeverStream;                    // BOOL INT for alignment - The value of the property from the original replacement texture package.
 
         /** Retrieves the matched Texture2D path as an Unreal string. */
         FString GetFullPath() const;
