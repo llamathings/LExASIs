@@ -1,6 +1,9 @@
 [submodule "External/LExSDKv2"]
 	path = External/LExSDKv2
-	url = https://github.com/d00telemental/LExSDKv2
+	url = https://github.com/llamathings/LExSDKv2.git
 [submodule "External/spdlog"]
 	path = External/spdlog
 	url = https://github.com/gabime/spdlog
+[submodule "External/simdutf"]
+	path = External/simdutf
+	url = https://github.com/simdutf/simdutf.git

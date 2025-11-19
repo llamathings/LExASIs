@@ -1,0 +1,22 @@
+[package]
+name = "convosniffer"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+anyhow = { version = "1.0" }
+axum = { version = "0.8", features = ["ws"] }
+local-ip-address = { version = "0.6" }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = { version = "1.0" }
+tokio = { version = "1.45", features = ["sync", "time"] }
+tracing = { version = "0.1" }
+tracing-subscriber = { version = "0.3" }
+
+[profile.release]
+debug = "full"
+lto = true
+opt-level = "s"
+panic = "abort"
+split-debuginfo = "packed"
+strip = "symbols"

@@ -11,11 +11,10 @@ namespace TextureOverride
         //LEASI_TRACE(L"UTexture2D::Serialize: {}", *TextureFullName);
         (*UTexture2D_Serialize_orig)(Context, Archive);
 
-        for (auto const& Manifest : g_loadedManifests)
+        for (ManifestLoaderPointer const& Manifest : g_loadedManifests)
         {
             CTextureEntry const* const Entry = Manifest->FindEntry(TextureFullName);
-            if (Entry == nullptr)
-                continue;
+            if (Entry == nullptr) continue;
 
             LEASI_INFO(L"UTexture2D::Serialize: replacing {}", *TextureFullName);
             UpdateTextureFromManifest(Context, *Manifest, *Entry);

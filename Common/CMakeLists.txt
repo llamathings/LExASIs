@@ -6,5 +6,10 @@ asi_target (Common
     "Base.hpp"
     "Memory.cpp"
     "Memory.hpp"
-  LINKS "spdlog"
-  VLINKS "LESDK")
+    "Objects.cpp"
+    "Objects.hpp"
+  LINKS
+    "spdlog"
+  VLINKS
+    "LESDK"
+)

@@ -229,4 +229,9 @@ namespace TextureOverride
         auto const ViewPointer = reinterpret_cast<unsigned char const*>(View);
         return std::span<unsigned char const>(ViewPointer, CachedSize);
     }
+
+    bool ManifestLoader::Compare(ManifestLoaderPointer const& Left, ManifestLoaderPointer const& Right)
+    {
+        return Left->MountPriority >= Right->MountPriority;
+    }
 }

@@ -170,6 +170,9 @@ namespace TextureOverride
     // ! Manifest types.
     // ========================================
 
+    class ManifestLoader;
+    using ManifestLoaderPointer = std::shared_ptr<ManifestLoader>;
+
     class ManifestLoader final : public NonCopyable
     {
         using TextureMap_t = std::unordered_map<FString, CTextureEntry const*>;
@@ -179,6 +182,7 @@ namespace TextureOverride
         LPVOID          View{ NULL };
         SIZE_T          CachedSize{ 0 };
         TextureMap_t    TextureMap{};
+        int             MountPriority{ 0 };
 
     public:
 
@@ -226,6 +230,11 @@ namespace TextureOverride
         CManifestHeader const& GetMappedHeader() const;
         /** Retrieves the mapped memory view. */
         std::span<unsigned char const> GetMappedView() const;
+
+        inline int GetMountPriority() const { return MountPriority; }
+        inline void SetMountPriority(int const InMountPriority) { MountPriority = InMountPriority; }
+
+        static bool Compare(ManifestLoaderPointer const& Left, ManifestLoaderPointer const& Right);
 
     private:
 
