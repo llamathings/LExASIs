@@ -86,6 +86,7 @@ namespace TextureOverride
     {
         EMF_Original                    = 1 << 1,   // Mip should not be modified.
         EMF_External                    = 1 << 2,   // Mip is located in a texture file cache.
+		EMF_OodleCompressed             = 1 << 3    // Mip is locally stored with Oodle compression
     };
 
 
@@ -119,6 +120,7 @@ namespace TextureOverride
 
         inline bool IsOriginal() const noexcept { return (Flags & EMF_Original) != 0; }
         inline bool IsExternal() const noexcept { return (Flags & EMF_External) != 0; }
+        inline bool IsOodleCompressed() const noexcept { return (Flags & EMF_OodleCompressed) != 0; } // Flag is only set when converting uncompressed to compressed during serialization
 
         /** Checks if this mip is "empty" (in LEX / MEM parlance). */
         bool IsEmpty() const noexcept;
