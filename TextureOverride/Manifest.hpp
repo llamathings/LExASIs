@@ -98,7 +98,7 @@ namespace TextureOverride
     {
         unsigned char   Magic[6];               // Magic bytes of 'LETEXM'.
         std::uint16_t   Version;                // Manifest version (not the mod version).
-        std::uint32_t   TargetHash;             // FNV-1 (32 bit) of containing folder name.
+        std::uint32_t   TargetHash;             // FNV-1 (32 bit) of the containing folder name as UTF-16 text.
         std::uint32_t   TextureCount;           // Number of @ref CTextureEntry structs after this header.
         std::uint32_t   TfcRefCount;            // Number of @ref CTfcRefEntry structs at @ref TfcRefOffset.
         std::uint64_t   TfcRefOffset;           // Offset to the @ ref CTfcRefEntry structs.
@@ -202,10 +202,11 @@ namespace TextureOverride
         /**
          * @brief       Attempts to initialize this manifest from a given file.
          * @param[in]   InPath - path to the manifest file being loaded.
+         * @param[in]   InDlcName - name of the DLC (derived from the folder).
          * @param[out]  OutError - receives error message if loading encounters an error.
          * @return      Whether loading was successful.
          */
-        bool Load(std::wstring_view InPath, FString& OutError);
+        bool Load(std::wstring_view InPath, std::wstring_view InDlcName, FString& OutError);
 
 #pragma pack(push, 8)
         struct ResolvedMip final

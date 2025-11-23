@@ -6,6 +6,51 @@ namespace TextureOverride
     // ! Utilities.
     // ========================================
 
+    // Calculates 32-bit FNV-1 hash with per-byte input.
+    struct FNV1Hash32 final
+    {
+        uint32_t Value;
+        uint32_t Prime;
+
+        static constexpr uint32_t DEFAULT_OFFSET = 0x811c9dc5;
+        static constexpr uint32_t DEFAULT_PRIME = 0x01000193;
+
+        explicit FNV1Hash32(uint32_t const InOffset = DEFAULT_OFFSET, uint32_t const InPrime = DEFAULT_PRIME)
+            : Value{ InOffset }, Prime{ InPrime } {}
+        explicit operator uint32_t() const { return Value; }
+
+        __forceinline void AddByte(unsigned char const Byte)
+        {
+            Value = (Value * Prime) ^ Byte;
+        }
+
+        FNV1Hash32& operator<<(wchar_t const* String)
+        {
+            wchar_t Char;
+
+            while ((Char = *String++) != L'\0')
+            {
+                static_assert(sizeof Char == 2);
+                AddByte(static_cast<unsigned char>((Char & 0x00FF) >> 0x00));
+                AddByte(static_cast<unsigned char>((Char & 0xFF00) >> 0x08));
+            }
+
+            return *this;
+        }
+
+        FNV1Hash32& operator<<(std::wstring_view const String)
+        {
+            for (wchar_t Char : String)
+            {
+                static_assert(sizeof Char == 2);
+                AddByte(static_cast<unsigned char>((Char & 0x00FF) >> 0x00));
+                AddByte(static_cast<unsigned char>((Char & 0xFF00) >> 0x08));
+            }
+
+            return *this;
+        }
+    };
+
     template<std::size_t Length>
     char const* FindChar(const char(&Haystack)[Length], char const Needle)
     {
@@ -84,9 +129,17 @@ namespace TextureOverride
         }
     }
 
-    bool ManifestLoader::Load(std::wstring_view const InPath, FString& OutError)
+    bool ManifestLoader::Load
+    (
+        std::wstring_view const     InPath,
+        std::wstring_view const     InDlcName,
+        FString&                    OutError
+    )
     {
         LEASI_CHECKW(!InPath.empty(), L"empty input path", L"");
+        LEASI_CHECKW(!InDlcName.empty(), L"empty input dlc name", L"");
+        // This should've been stripped out by the caller:
+        LEASI_CHECKW(!InDlcName.starts_with(L"DLC_MOD_"), L"", L"");
 
         FileHandle = ::CreateFileW(InPath.data(), GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, 0u, NULL);
         if (FileHandle == INVALID_HANDLE_VALUE)
@@ -140,7 +193,25 @@ namespace TextureOverride
             return false;
         }
 
-        // Texture file cache references.
+        // Check folder hash.
+
+        uint32_t const CalculatedHash = (FNV1Hash32{} << SDK_TARGET_NAME_W << InDlcName).Value;
+        uint32_t const SerializedHash = Header->TargetHash;
+
+        if (CalculatedHash != SerializedHash)
+        {
+#ifdef _DEBUG
+            LEASI_WARN(L"mismatched serialized folder hash: 0x{:08X}, expected 0x{:08X}",
+                SerializedHash, CalculatedHash);
+            LEASI_BREAK_SAFE();
+#else
+            CLOSE_ERROR(L"mismatched serialized folder hash: 0x{:08X}, expected 0x{:08X}",
+                SerializedHash, CalculatedHash);
+            return false;
+#endif
+        }
+
+        // Read texture file cache references.
 
         std::size_t const TfcRefTableOffset = Header->TfcRefOffset;
         std::size_t const TfcRefTableEnd = TfcRefTableOffset + sizeof(CTfcRefEntry) * Header->TfcRefCount;
@@ -159,7 +230,7 @@ namespace TextureOverride
             static_cast<std::size_t>(Header->TfcRefCount)
         );
 
-        // Texture entries.
+        // Read texture entries.
 
         std::size_t const EntryTableOffset = sizeof(CManifestHeader);
         std::size_t const EntryTableEnd = EntryTableOffset + sizeof(CTextureEntry) * Header->TextureCount;

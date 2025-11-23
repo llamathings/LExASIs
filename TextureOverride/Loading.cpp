@@ -22,11 +22,15 @@ namespace TextureOverride
             fs::path const& DlcPath = DlcRoot.path();
             std::wstring const DlcName{ DlcPath.filename().c_str() };
 
-            if (!DlcRoot.is_directory() || !DlcName.starts_with(L"DLC_MOD_"))
+            static constexpr std::size_t k_dlcModLength = sizeof(L"DLC_MOD_") / sizeof(wchar_t) - 1;
+            if (!DlcRoot.is_directory() || !DlcName.starts_with(L"DLC_MOD_") || DlcName.length() <= k_dlcModLength)
             {
                 //LEASI_TRACE(L"disregarding {}, not a valid directory", DlcPath.c_str());
                 continue;
             }
+
+            // Used for checking manifest folder hash.
+            std::wstring_view const DlcNameStripped{ DlcName.c_str() + k_dlcModLength };
 
             MountLoadError.Clear();
             int const MountPriority = TryReadMountPriority(DlcPath, SDK_TARGET, &MountLoadError);
@@ -41,16 +45,16 @@ namespace TextureOverride
             LEASI_DEBUG(L"mount priority for '{}' is {}", DlcName, MountPriority);
 
             fs::path const ManifestPath = DlcPath / "CombinedTextureOverrides.btp";
-            LEASI_DEBUG(L"looking for manifest {}", ManifestPath.c_str());
+            LEASI_DEBUG(L"looking for manifest {} ('{}')", ManifestPath.c_str(), DlcNameStripped);
 
             if (!fs::exists(ManifestPath))
                 continue;
 
             FString LoadError{};
-            LEASI_DEBUG(L"loading manifest {}", ManifestPath.c_str());
+            LEASI_DEBUG(L"loading manifest {} ('{}')", ManifestPath.c_str(), DlcNameStripped);
 
             ManifestLoaderPointer Manifest = std::make_shared<ManifestLoader>();
-            if (!Manifest->Load(ManifestPath.wstring(), LoadError))
+            if (!Manifest->Load(ManifestPath.wstring(), DlcNameStripped, LoadError))
             {
                 LEASI_ERROR(L"failed to load manifest {}", ManifestPath.c_str());
                 LEASI_ERROR(L"error: {}", *LoadError);
