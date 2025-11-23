@@ -68,10 +68,29 @@ namespace TextureOverride
     // Manifest accessors in inverse mount order.
     extern std::vector<ManifestLoaderPointer> g_loadedManifests;
 
+    extern int32_t g_statTextureSerializeCount;
+    extern float g_statTextureSerializeSeconds;
+
     static constexpr std::wstring_view k_searchFoldersRoot = L"../../BioGame/DLC/";
 
     void LoadDlcManifests();
 
     FString const& GetTextureFullName(UTexture2D* InObject);
     void UpdateTextureFromManifest(UTexture2D* InTexture, ManifestLoader const& Manifest, CTextureEntry const& Entry);
+
+
+    // ! Loading utilities.
+    // ========================================
+
+    class ScopedTimer final
+    {
+        long long Frequency{};
+        long long CounterStart{};
+
+    public:
+
+        ScopedTimer();
+        float GetSeconds() const;
+        float GetMilliseconds() const;
+    };
 }

@@ -11,6 +11,9 @@ namespace TextureOverride
     bool g_enableLoadingManifest{ true };
     std::vector<ManifestLoaderPointer> g_loadedManifests{};
 
+    int32_t g_statTextureSerializeCount{ 0 };
+    float g_statTextureSerializeSeconds{ 0.f };
+
     void LoadDlcManifests()
     {
         fs::path const DlcFolder{ k_searchFoldersRoot };
@@ -245,5 +248,32 @@ namespace TextureOverride
         // This must be set so engine knows how many mips are populated.
         // LEC sets this, it seemed to be required when we wrote it back then
         InTexture->MipTailBaseIdx = InTexture->Mips.ArrayNum - 1;
+    }
+
+    // ! ScopedTimer implementation.
+    // ========================================
+
+    ScopedTimer::ScopedTimer()
+    {
+        LARGE_INTEGER liFreq{};
+        LARGE_INTEGER liStart{};
+
+        QueryPerformanceFrequency(&liFreq);
+        QueryPerformanceCounter(&liStart);
+
+        Frequency = liFreq.QuadPart;
+        CounterStart = liStart.QuadPart;
+    }
+
+    float ScopedTimer::GetSeconds() const
+    {
+        LARGE_INTEGER liNow{};
+        QueryPerformanceCounter(&liNow);
+        return static_cast<float>(liNow.QuadPart - CounterStart) / Frequency;
+    }
+
+    float ScopedTimer::GetMilliseconds() const
+    {
+        return GetSeconds() * 1000;
     }
 }

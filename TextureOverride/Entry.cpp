@@ -72,6 +72,11 @@ namespace TextureOverride
 
     void InitializeHooks(::LESDK::Initializer& Init)
     {
+        auto const UGameEngine_Exec_target = Init.ResolveTyped<t_UGameEngine_Exec>(UGAMEENGINE_EXEC_RVA);
+        CHECK_RESOLVED(UGameEngine_Exec_target);
+        UGameEngine_Exec_orig = (t_UGameEngine_Exec*)Init.InstallHook("UGameEngine::Exec", UGameEngine_Exec_target, UGameEngine_Exec_hook);
+        CHECK_RESOLVED(UGameEngine_Exec_orig);
+
         auto const UTexture2D_Serialize_target = Init.ResolveTyped<t_UTexture2D_Serialize>(UTEXTURE2D_SERIALIZE_RVA);
         CHECK_RESOLVED(UTexture2D_Serialize_target);
         UTexture2D_Serialize_orig = (t_UTexture2D_Serialize*)Init.InstallHook("UTexture2D::Serialize", UTexture2D_Serialize_target, UTexture2D_Serialize_hook);
