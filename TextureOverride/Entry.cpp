@@ -14,9 +14,9 @@ SPI_IMPLEMENT_ATTACH
 
     ::LESDK::InitializeConsole();
     ::TextureOverride::InitializeLogger();
-    ::TextureOverride::InitializeArgs();
     ::TextureOverride::InitializeGlobals(Init);
     ::TextureOverride::InitializeHooks(Init);
+    ::TextureOverride::InitializeArgs();
 
     LEASI_INFO("hello there, {}!", SDK_TARGET_NAME_A "TextureOverride");
     ::TextureOverride::LoadDlcManifests();
@@ -38,19 +38,6 @@ namespace TextureOverride
     {
         spdlog::default_logger()->set_pattern("%^[%H:%M:%S.%e] [%l] (" SDK_TARGET_NAME_A "TextureOverride) %v%$");
         spdlog::default_logger()->set_level(spdlog::level::trace);
-    }
-
-    void InitializeArgs()
-    {
-        FString CmdArgs{ GetCommandLineW() };
-        CmdArgs.Append(L" ");
-
-        if (CmdArgs.Contains(L" -disabletextureoverride ", true))
-        {
-            g_enableLoadingManifest = false;
-            LEASI_WARN(L"texture override disabled via cmd args");
-            LEASI_WARN(L"manifests will still be processed");
-        }
     }
 
 #define CHECK_RESOLVED(variable)                                                    \
@@ -91,5 +78,18 @@ namespace TextureOverride
         CHECK_RESOLVED(UTexture2D_Serialize_orig);
 
         LEASI_INFO("hooks initialized");
+    }
+
+    void InitializeArgs()
+    {
+        FString CmdArgs{ GetCommandLineW() };
+        CmdArgs.Append(L" ");
+
+        if (CmdArgs.Contains(L" -disabletextureoverride ", true))
+        {
+            g_enableLoadingManifest = false;
+            LEASI_WARN(L"texture override disabled via cmd args");
+            LEASI_WARN(L"manifests will still be processed");
+        }
     }
 }
