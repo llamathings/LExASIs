@@ -193,9 +193,21 @@ namespace TextureOverride
 
                         // Allocate decompressed space
                         NextMip->Data = (*GMalloc)->Malloc(DWORD(MipEntry.UncompressedSize), UN_DEFAULT_ALIGNMENT);
-                        OodleDecompress(0, NextMip->Data, MipEntry.UncompressedSize, (void*) MipContents.data(), MipEntry.CompressedSize);
+                        auto result = OodleDecompress(0x400, NextMip->Data, MipEntry.UncompressedSize, (void*) MipContents.data(), MipEntry.CompressedSize);
+                        if (result == 0) {
+                            // uh oh
+                            LEASI_ERROR(L"Error decompressing oodle data");
+                        }
                         NextMip->CompressedOffset = 0;
                         NextMip->bNeedsFree = true;
+
+                        // Verify
+						/*auto data = (int*)NextMip->Data;
+                        auto textureTag = data[0];
+                        if (textureTag != 0x9E2A83C1) // not sure what tag is... this doesn't seem right
+                        {
+                            LEASI_WARN(L"Decompressed mip has wrong texture tag");
+						}*/
                     }
                     else {
 
@@ -229,6 +241,9 @@ namespace TextureOverride
         // Validation of this will come from our editor tools, don't make it our
         // job to handle it.
         InTexture->NeverStream = Entry.NeverStream;
+
+        // Copy SRGB flag from manifest
+        InTexture->SRGB = Entry.SRGB;
 
         // This must be set so engine knows how many mips are populated.
         // LEC sets this, it seemed to be required when we wrote it back then

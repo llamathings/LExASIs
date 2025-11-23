@@ -19,6 +19,9 @@ namespace TextureOverride
             LEASI_INFO(L"UTexture2D::Serialize: replacing {}", *TextureFullName);
             UpdateTextureFromManifest(Context, *Manifest, *Entry);
         }
+
+        // Clown mode
+        // Context->InternalFormatLODBias = 12;
     }
 
     t_OodleDecompress* OodleDecompress = nullptr;

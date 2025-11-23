@@ -159,7 +159,7 @@ namespace TextureOverride
         EPixelFormat    Format;                         // Pixel format for all mips, must match the LE definition.
         int             InternalFormatLODBias;          // The value of the property from the original replacement texture package. Used to allow higher mip levels than the LOD level in config.
 		int             NeverStream;                    // BOOL INT for alignment - The value of the property from the original replacement texture package.
-
+		int             SRGB;                           // BOOL INT for alignment - The value of the property from the original replacement texture package.
         /** Retrieves the matched Texture2D path as an Unreal string. */
         FString GetFullPath() const;
         /** Retrieves the texture file cache name as an Unreal string. */
