@@ -8,6 +8,7 @@ namespace fs = std::filesystem;
 
 namespace TextureOverride
 {
+    bool g_enableLoadingManifest{ true };
     std::vector<ManifestLoaderPointer> g_loadedManifests{};
 
     void LoadDlcManifests()

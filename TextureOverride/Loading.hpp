@@ -62,7 +62,12 @@ namespace TextureOverride
     // ! Texture loading.
     // ========================================
 
+    // Flag which controls whether the UTexture2D::Serialize hook
+    // would actually override texture data. Does not affect manifest loading.
+    extern bool g_enableLoadingManifest;
+    // Manifest accessors in inverse mount order.
     extern std::vector<ManifestLoaderPointer> g_loadedManifests;
+
     static constexpr std::wstring_view k_searchFoldersRoot = L"../../BioGame/DLC/";
 
     void LoadDlcManifests();
