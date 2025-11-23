@@ -86,6 +86,7 @@ namespace TextureOverride
     {
         EMF_Original                    = 1 << 1,   // Mip should not be modified.
         EMF_External                    = 1 << 2,   // Mip is located in a texture file cache.
+		EMF_OodleCompressed             = 1 << 3    // Mip is locally stored with Oodle compression
     };
 
 
@@ -141,6 +142,7 @@ namespace TextureOverride
 
         inline bool IsOriginal() const noexcept { return (Flags & EMF_Original) != 0; }
         inline bool IsExternal() const noexcept { return (Flags & EMF_External) != 0; }
+        inline bool IsOodleCompressed() const noexcept { return (Flags & EMF_OodleCompressed) != 0; } // Flag is only set when converting uncompressed to compressed during serialization
 
         /** Checks if this mip is "empty" (in LEX / MEM parlance). */
         bool IsEmpty() const noexcept;
@@ -163,6 +165,7 @@ namespace TextureOverride
         wchar_t         FullPath[k_maxFullPathLength];  // Full path of the Texture2D entry being matched (replaced).
         std::int32_t    TfcRefIndex;                    // Index to the texture file cache record used by external mips in this entry.
         EPixelFormat    Format;                         // Pixel format for all mips, must match the LE definition.
+        std::int32_t    SRGB;                           // Property value from the original replacement texture package.
         std::int16_t    InternalFormatLODBias;          // Property value from the original replacement texture package, used to allow higher mip levels than the LOD level in config.
         std::int8_t     NeverStream;                    // Property value from the original replacement texture package.
         std::int8_t     MipCount;                       // Number of mip records in @ref Mips, no more than @ref k_maxMipCount.

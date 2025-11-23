@@ -251,10 +251,19 @@ namespace TextureOverride
         {
             CTextureEntry const* const Entry = TextureEntryStart + i;
             FString const EntryFullPath = Entry->GetFullPath();
+            FString const TfcName = GetTfcName(Entry);
 
-            LEASI_TRACE(L"adding manifest entry {} with {} mip(s) in texture file cache '{}'",
-                *EntryFullPath, Entry->MipCount, *GetTfcName(Entry));
-
+            if (TfcName == L"None")
+            {
+                LEASI_TRACE(L"adding manifest entry {} with {} mip(s) (package stored)",
+                    *EntryFullPath, Entry->MipCount);
+            }
+            else
+            {
+                LEASI_TRACE(L"adding manifest entry {} with {} mip(s) in texture file cache '{}'",
+                    *EntryFullPath, Entry->MipCount, *TfcName);
+            }
+            
             auto [_, bUniqueTexture] = TextureMap.emplace(EntryFullPath, Entry);
             if (!bUniqueTexture)
             {

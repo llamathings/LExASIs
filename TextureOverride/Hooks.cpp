@@ -22,5 +22,10 @@ namespace TextureOverride
                 UpdateTextureFromManifest(Context, *Manifest, *Entry);
             }
         }
+
+        // Clown mode
+        // Context->InternalFormatLODBias = 12;
     }
+
+    t_OodleDecompress* OodleDecompress = nullptr;
 }

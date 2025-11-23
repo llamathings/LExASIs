@@ -77,6 +77,9 @@ namespace TextureOverride
         UTexture2D_Serialize_orig = (t_UTexture2D_Serialize*)Init.InstallHook("UTexture2D::Serialize", UTexture2D_Serialize_target, UTexture2D_Serialize_hook);
         CHECK_RESOLVED(UTexture2D_Serialize_orig);
 
+        // Find oodle decompression function.
+        OodleDecompress = Init.ResolveTyped<t_OodleDecompress>(OODLE_DECOMPRESS_RVA);
+
         LEASI_INFO("hooks initialized");
     }
 
