@@ -138,8 +138,6 @@ namespace TextureOverride
     {
         LEASI_CHECKW(!InPath.empty(), L"empty input path", L"");
         LEASI_CHECKW(!InDlcName.empty(), L"empty input dlc name", L"");
-        // This should've been stripped out by the caller:
-        LEASI_CHECKW(!InDlcName.starts_with(L"DLC_MOD_"), L"", L"");
 
         FileHandle = ::CreateFileW(InPath.data(), GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, 0u, NULL);
         if (FileHandle == INVALID_HANDLE_VALUE)
