@@ -1,3 +1,7 @@
+#include <spdlog/details/windows_include.h>
+#include <spdlog/sinks/basic_file_sink.h>
+#include <spdlog/sinks/stdout_color_sinks.h>
+
 #include "Common/Base.hpp"
 #include "TextureOverride/Entry.hpp"
 #include "TextureOverride/Hooks.hpp"
@@ -27,7 +31,9 @@ SPI_IMPLEMENT_ATTACH
 SPI_IMPLEMENT_DETACH
 {
     LEASI_UNUSED(InterfacePtr);
+#ifdef _DEBUG
     ::LESDK::TerminateConsole();
+#endif
     return true;
 }
 
@@ -36,8 +42,27 @@ namespace TextureOverride
 {
     void InitializeLogger()
     {
-        spdlog::default_logger()->set_pattern("%^[%H:%M:%S.%e] [%l] (" SDK_TARGET_NAME_A "TextureOverride) %v%$");
-        spdlog::default_logger()->set_level(spdlog::level::trace);
+        auto DefaultLogger = spdlog::default_logger();
+        DefaultLogger->sinks().clear();
+
+#ifdef _DEBUG
+        ::LESDK::InitializeConsole();
+
+        auto ConsoleSink = std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
+        ConsoleSink->set_color(spdlog::level::trace, FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE);
+        ConsoleSink->set_color(spdlog::level::debug, FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE | FOREGROUND_INTENSITY);
+        ConsoleSink->set_color(spdlog::level::info, FOREGROUND_BLUE | FOREGROUND_INTENSITY);
+        DefaultLogger->sinks().push_back(std::move(ConsoleSink));
+#endif
+
+        auto FileSink = std::make_shared<spdlog::sinks::basic_file_sink_mt>("TextureOverride.log", true);
+        DefaultLogger->sinks().push_back(std::move(FileSink));
+
+        DefaultLogger->set_pattern("%^[%H:%M:%S.%e %l] (" SDK_TARGET_NAME_A "TextureOverride) %v%$");
+        DefaultLogger->set_level(spdlog::level::trace);
+
+        spdlog::flush_on(spdlog::level::warn);
+        spdlog::flush_every(std::chrono::seconds(5));
     }
 
 #define CHECK_RESOLVED(variable)                                                    \

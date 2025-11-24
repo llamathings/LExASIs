@@ -66,7 +66,7 @@ namespace TextureOverride
         }
 
         // Sort manifests into descending mount priority order.
-        std::sort(g_loadedManifests.begin(), g_loadedManifests.end(), ManifestLoader::Compare);
+        std::sort(g_loadedManifests.begin(), g_loadedManifests.end(), ManifestLoader::CompareReverse);
     }
 
     FString const& GetTextureFullName(UTexture2D* const InObject)

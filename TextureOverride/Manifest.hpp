@@ -199,6 +199,8 @@ namespace TextureOverride
 
     public:
 
+        using TextureMap_t = TextureMap_t;
+
         ManifestLoader() = default;
         ~ManifestLoader();
 
@@ -253,7 +255,8 @@ namespace TextureOverride
         inline int GetMountPriority() const { return MountPriority; }
         inline void SetMountPriority(int const InMountPriority) { MountPriority = InMountPriority; }
 
-        static bool Compare(ManifestLoaderPointer const& Left, ManifestLoaderPointer const& Right);
+        /** Compares two @ref ManifestLoader shared pointers in descending mount priority order. */
+        static bool CompareReverse(ManifestLoaderPointer const& Left, ManifestLoaderPointer const& Right);
 
     private:
 

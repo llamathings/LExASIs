@@ -345,7 +345,7 @@ namespace TextureOverride
         return FString::Printf(L"%s", TfcName);
     }
 
-    bool ManifestLoader::Compare(ManifestLoaderPointer const& Left, ManifestLoaderPointer const& Right)
+    bool ManifestLoader::CompareReverse(ManifestLoaderPointer const& Left, ManifestLoaderPointer const& Right)
     {
         return Left->MountPriority >= Right->MountPriority;
     }
