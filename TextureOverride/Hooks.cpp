@@ -25,6 +25,8 @@ namespace TextureOverride
 #ifdef _DEBUG
             else if (CommandCopy.Contains(L"to.stats"))
             {
+                g_statTextureSerializeCount = std::max<int>(g_statTextureSerializeCount, 1);
+
                 LEASI_INFO(L"(stats) UTexture2D::Serialize time added:     {:.4f} ms", g_statTextureSerializeSeconds * 1000);
                 LEASI_INFO(L"(stats) UTexture2D::Serialize active count:   {}", g_statTextureSerializeCount);
                 LEASI_INFO(L"(stats) ==================================================");
