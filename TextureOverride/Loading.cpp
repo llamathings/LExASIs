@@ -5,6 +5,7 @@
 #include "TextureOverride/Manifest.hpp"
 #include "TextureOverride/Mount.hpp"
 #include "TextureOverride/Hooks.hpp"
+#include <stack>
 
 namespace fs = std::filesystem;
 
@@ -79,19 +80,25 @@ namespace TextureOverride
 
         if (InObject->Class != nullptr)
         {
-            if (InObject->Outer != nullptr)
+            std::stack<UObject*> ifpStack;
+            UObject* obj = InObject;
+            ifpStack.push(obj);
+            while (obj->Outer != nullptr)
             {
-                if (InObject->Outer->Outer != nullptr)
-                {
-                    LESDK::AppendObjectName(InObject->Outer->Outer, OutString, SFXName::k_formatBasic);
-                    OutString.Append(L".");
-                }
-
-                LESDK::AppendObjectName(InObject->Outer, OutString, SFXName::k_formatBasic);
-                OutString.Append(L".");
+                obj = obj->Outer;
+                ifpStack.push(obj);
             }
 
-            LESDK::AppendObjectName(InObject, OutString, SFXName::k_formatInstanced);
+            while (!ifpStack.empty())
+            {
+                obj = ifpStack.top();
+                LESDK::AppendObjectName(obj, OutString, SFXName::k_formatBasic);
+                ifpStack.pop();
+                if (!ifpStack.empty()) {
+                    OutString.Append(L".");
+
+                }
+            }
             return OutString;
         }
 
