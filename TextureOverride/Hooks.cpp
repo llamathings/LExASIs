@@ -45,7 +45,7 @@ namespace TextureOverride
 	void UTexture2D_Serialize_hook(UTexture2D* const Context, void* const Archive)
 	{
 		FString const& TextureFullName = GetTextureFullName(Context);
-		//LEASI_TRACE(L"UTexture2D::Serialize: {}", *TextureFullName);
+		// LEASI_DEBUG(L"UTexture2D::Serialize: {}", *TextureFullName);
 
 		(*UTexture2D_Serialize_orig)(Context, Archive);
 
