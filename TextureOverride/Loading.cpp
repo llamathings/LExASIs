@@ -93,7 +93,7 @@ namespace TextureOverride
             while (!ifpStack.empty())
             {
                 obj = ifpStack.top();
-                LESDK::AppendObjectName(obj, OutString, SFXName::k_formatBasic);
+                LESDK::AppendObjectName(obj, OutString, SFXName::k_formatInstanced);
                 ifpStack.pop();
                 if (!ifpStack.empty()) {
                     OutString.Append(L".");
