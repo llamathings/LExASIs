@@ -8,6 +8,8 @@ asi_target (Common
     "Memory.hpp"
     "Objects.cpp"
     "Objects.hpp"
+    "ME3TweaksLogger.cpp"
+    "ME3TweaksLogger.hpp"
   LINKS
     "spdlog"
   VLINKS
