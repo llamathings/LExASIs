@@ -213,6 +213,7 @@ endfunction ()
 
 add_subdirectory ("External")
 add_subdirectory ("Common")
+add_subdirectory ("ConsoleExtension")
 add_subdirectory ("ConvoSniffer")
 add_subdirectory ("SSRUnlocker")
 add_subdirectory ("TextureOverride")
