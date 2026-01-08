@@ -33,25 +33,9 @@ SPI_IMPLEMENT_DETACH
 
 namespace StreamingLevelsHUD
 {
-
-#define CHECK_RESOLVED(variable)                                                    \
-    do {                                                                            \
-        LEASI_VERIFYA(variable != nullptr, "failed to resolve " #variable, "");     \
-        LEASI_TRACE("resolved " #variable " => {}", (void*)variable);               \
-    } while (false)
-
 	void InitializeGlobals(::LESDK::Initializer& Init)
 	{
-		GMalloc = Init.ResolveTyped<FMallocLike*>(BUILTIN_GMALLOC_RIP);
-		CHECK_RESOLVED(GMalloc);
-
-		UObject::GObjObjects = Init.ResolveTyped<TArray<UObject*>>(BUILTIN_GOBOBJECTS_RIP);
-		CHECK_RESOLVED(UObject::GObjObjects);
-		SFXName::GBioNamePools = Init.ResolveTyped<SFXNameEntry const*>(BUILTIN_SFXNAMEPOOLS_RIP);
-		CHECK_RESOLVED(SFXName::GBioNamePools);
-		SFXName::GInitMethod = Init.ResolveTyped<SFXName::tInitMethod>(BUILTIN_SFXNAMEINIT_PHOOK);
-		CHECK_RESOLVED(SFXName::GInitMethod);
-
+		Common::InitializeRequiredGlobals(Init);
 		LEASI_INFO("globals initialized");
 	}
 

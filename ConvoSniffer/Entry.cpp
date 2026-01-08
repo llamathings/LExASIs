@@ -63,16 +63,9 @@ namespace ConvoSniffer
         spdlog::set_default_logger(std::shared_ptr<spdlog::logger>(logger));
     }
 
-#define CHECK_RESOLVED(variable)                                                    \
-    do {                                                                            \
-        LEASI_VERIFYA(variable != nullptr, "failed to resolve " #variable, "");     \
-        LEASI_TRACE("resolved " #variable " => {}", (void*)variable);               \
-    } while (false)
-
     void InitializeGlobals(::LESDK::Initializer& Init)
     {
-        GMalloc = Init.ResolveTyped<FMallocLike*>(BUILTIN_GMALLOC_RIP);
-        CHECK_RESOLVED(GMalloc);
+		Common::InitializeRequiredGlobals(Init);
 
         //GEngine = Init.ResolveTyped<UEngine*>(BUILTIN_GENGINE_RIP);
         //CHECK_RESOLVED(GEngine);
@@ -82,13 +75,6 @@ namespace ConvoSniffer
         //CHECK_RESOLVED(GSys);
         //GWorld = Init.ResolveTyped<UWorld*>(BUILTIN_GWORLD_RIP);
         //CHECK_RESOLVED(GWorld);
-
-        UObject::GObjObjects = Init.ResolveTyped<TArray<UObject*>>(BUILTIN_GOBOBJECTS_RIP);
-        CHECK_RESOLVED(UObject::GObjObjects);
-        SFXName::GBioNamePools = Init.ResolveTyped<SFXNameEntry const*>(BUILTIN_SFXNAMEPOOLS_RIP);
-        CHECK_RESOLVED(SFXName::GBioNamePools);
-        SFXName::GInitMethod = Init.ResolveTyped<SFXName::tInitMethod>(BUILTIN_SFXNAMEINIT_PHOOK);
-        CHECK_RESOLVED(SFXName::GInitMethod);
 
         LEASI_INFO("globals initialized");
     }

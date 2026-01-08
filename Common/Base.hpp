@@ -4,6 +4,7 @@
 #include <string_view>
 
 #include "spdlog/spdlog.h"
+#include <LESDK/Init.hpp>
 
 
 // ! Common macros.
@@ -45,6 +46,10 @@
 namespace Common
 {
     void InitializeLoggerDefault();
+    /**
+     * @brief   Initializes the Globals that are required for basic SDK functionality
+     */
+    void InitializeRequiredGlobals(::LESDK::Initializer& Init);
 }
 
 namespace Details
@@ -83,6 +88,11 @@ namespace Details
     #define LEASI_CHECKW(Expression, Format, ...)   do { } while (false)
 #endif
 
+#define CHECK_RESOLVED(variable)                                                    \
+    do {                                                                            \
+        LEASI_VERIFYA(variable != nullptr, "failed to resolve " #variable, "");     \
+        LEASI_TRACE("resolved " #variable " => {}", (void*)variable);               \
+    } while (false)
 
 // ! Miscellaneous types.
 // ========================================
